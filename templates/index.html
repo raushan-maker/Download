@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>YT-DLP Video Downloader</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <video autoplay muted loop id="bgVideo">
+    <source src="/static/bg.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="wrapper">
+    <div class="card glass">
+      <h1>📥 Video Downloader</h1>
+      <form id="downloadForm" action="/download" method="POST">
+        <input type="text" name="url" id="urlInput" placeholder="Paste YouTube/video URL" required>
+        <button type="submit">Download</button>
+      </form>
+
+      <div id="preview" style="margin-top: 20px; display: none;">
+        <img id="thumb" src="" alt="Thumbnail" style="max-width: 100%; border-radius: 12px;">
+        <h3 id="title" style="color: white; margin-top: 10px;"></h3>
+      </div>
+
+      <p class="footer">❤️‍🩹MADE BY ROHIT⚡</p>
+    </div>
+  </div>
+
+  <script>
+    const urlInput = document.getElementById('urlInput');
+    const preview = document.getElementById('preview');
+    const thumb = document.getElementById('thumb');
+    const title = document.getElementById('title');
+
+    let timeout = null;
+
+    urlInput.addEventListener('input', () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        const url = urlInput.value.trim();
+        if (!url) return;
+
+        const formData = new FormData();
+        formData.append('url', url);
+
+        fetch('/video_info', {
+          method: 'POST',
+          body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.error) {
+            preview.style.display = "none";
+          } else {
+            thumb.src = data.thumbnail;
+            title.textContent = data.title;
+            preview.style.display = "block";
+          }
+        })
+        .catch(() => {
+          preview.style.display = "none";
+        });
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
