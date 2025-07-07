@@ -1,95 +1,191 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>YT-DLP Video Downloader</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/833/833524.png">
   <style>
+    :root {
+      --bg-dark: #0f172a;
+      --bg-light: #f8fafc;
+      --card-dark: rgba(255, 255, 255, 0.05);
+      --card-light: rgba(255, 255, 255, 0.8);
+      --text-dark: #ffffff;
+      --text-light: #0f172a;
+      --highlight: #38bdf8;
+      --btn-start: #06b6d4;
+      --btn-end: #3b82f6;
+    }
+
+    [data-theme="light"] {
+      --bg: var(--bg-light);
+      --card: var(--card-light);
+      --text: var(--text-light);
+    }
+
+    [data-theme="dark"] {
+      --bg: var(--bg-dark);
+      --card: var(--card-dark);
+      --text: var(--text-dark);
+    }
+
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Poppins', sans-serif;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
     }
 
     body {
-      height: 100vh;
-      background: black;
-      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      position: relative;
+      flex-direction: column;
+      transition: all 0.4s ease-in-out;
+      overflow-x: hidden;
     }
 
     video#bgVideo {
-      position: absolute;
+      position: fixed;
       top: 0;
       left: 0;
-      min-width: 100%;
-      min-height: 100%;
+      width: 100vw;
+      height: 100vh;
       object-fit: cover;
       z-index: -1;
-      opacity: 0.4;
+      opacity: 0.2;
     }
 
-    .container {
-      background: rgba(0, 0, 0, 0.75);
-      padding: 30px;
+    .card {
+      background: var(--card);
+      backdrop-filter: blur(20px);
       border-radius: 20px;
-      box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+      padding: 3rem;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
       width: 90%;
-      max-width: 500px;
+      max-width: 600px;
       text-align: center;
-      color: white;
+      transition: 0.3s;
+      animation: fadeIn 0.8s ease forwards;
     }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 20px;
-      color: #00eaff;
+    .card h1 {
+      font-size: 2.6rem;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(to right, var(--btn-start), var(--btn-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
-    input[type="text"] {
+    .card input[type="text"] {
       width: 100%;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 1rem;
+      border-radius: 12px;
       border: none;
-      margin-bottom: 20px;
+      margin-bottom: 1.5rem;
       font-size: 1rem;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+      outline: none;
     }
 
-    button {
-      background: linear-gradient(135deg, #00eaff, #0080ff);
+    .card button {
+      background: linear-gradient(to right, var(--btn-start), var(--btn-end));
       border: none;
-      padding: 12px 25px;
-      border-radius: 10px;
+      padding: 12px 30px;
+      border-radius: 12px;
       color: white;
       font-size: 1rem;
       cursor: pointer;
-      transition: 0.3s ease;
+      margin: 0.3rem;
+      transition: all 0.3s ease;
     }
 
-    button:hover {
-      background: linear-gradient(135deg, #0080ff, #00eaff);
-      transform: scale(1.05);
+    .card button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(59, 130, 246, 0.5);
     }
 
     .thumbnail {
-      margin-top: 20px;
+      margin-top: 25px;
+      display: none;
     }
 
     .thumbnail img {
       width: 100%;
-      border-radius: 10px;
-      margin-bottom: 10px;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
 
-    .title {
-      font-size: 1rem;
-      color: #00eaff;
+    .thumbnail .title {
+      margin-top: 15px;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: var(--highlight);
+    }
+
+    .loader {
+      border: 5px solid rgba(255, 255, 255, 0.2);
+      border-top: 5px solid var(--highlight);
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      animation: spin 1s linear infinite;
+      margin: 15px auto;
+      display: none;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: 2px solid var(--highlight);
+      color: var(--highlight);
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: 0.3s ease;
+    }
+
+    .theme-toggle:hover {
+      background-color: var(--highlight);
+      color: var(--bg);
+    }
+
+    footer {
+      position: absolute;
+      bottom: 10px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.4);
+      text-align: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 2rem;
+      }
+      .card h1 {
+        font-size: 2rem;
+      }
     }
   </style>
 </head>
@@ -99,23 +195,35 @@
     <source src="/static/bg.mp4" type="video/mp4">
   </video>
 
-  <div class="container">
-    <h1>YT-DLP Video Downloader</h1>
+  <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+
+  <div class="card">
+    <h1><i class="fas fa-download"></i> YT-DLP Downloader</h1>
     <form id="download-form" method="POST" action="/download">
-      <input type="text" id="url" name="url" placeholder="Paste video URL here" required>
-      <button type="button" onclick="previewVideo()">Preview</button>
-      <button type="submit">Download</button>
+      <input type="text" id="url" name="url" placeholder="Paste video URL here..." required>
+      <div>
+        <button type="button" onclick="previewVideo()"><i class="fas fa-eye"></i> Preview</button>
+        <button type="submit"><i class="fas fa-download"></i> Download</button>
+      </div>
     </form>
-    <div class="thumbnail" id="video-preview" style="display: none;">
-      <img id="video-thumbnail" src="" alt="Thumbnail">
+    <div class="loader" id="loader"></div>
+    <div class="thumbnail" id="video-preview">
+      <img id="video-thumbnail" src="" alt="Video Thumbnail">
       <div class="title" id="video-title"></div>
     </div>
   </div>
+
+  <footer>
+    Made with 💙 using yt-dlp & Flask
+  </footer>
 
   <script>
     function previewVideo() {
       const url = document.getElementById('url').value;
       if (!url) return;
+
+      const loader = document.getElementById('loader');
+      loader.style.display = 'block';
 
       fetch('/video_info', {
         method: 'POST',
@@ -124,6 +232,7 @@
       })
         .then(res => res.json())
         .then(data => {
+          loader.style.display = 'none';
           if (data.error) {
             alert('Error: ' + data.error);
             return;
@@ -132,7 +241,16 @@
           document.getElementById('video-thumbnail').src = data.thumbnail;
           document.getElementById('video-title').innerText = data.title;
         })
-        .catch(err => alert('Failed to fetch video info'));
+        .catch(err => {
+          loader.style.display = 'none';
+          alert('Failed to fetch video info');
+        });
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      html.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
     }
   </script>
 </body>
