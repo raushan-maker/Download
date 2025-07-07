@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -89,9 +88,6 @@
       width: 100%;
       text-align: center;
       animation: fadeInUp 0.8s ease-in-out;
-      overflow-wrap: break-word;
-      word-wrap: break-word;
-      word-break: break-word;
     }
 
     .card h1 {
@@ -109,7 +105,6 @@
       background: rgba(255, 255, 255, 0.1);
       color: var(--text);
       font-size: 1rem;
-      word-break: break-word;
     }
 
     .card button {
@@ -130,44 +125,47 @@
       box-shadow: 0 10px 20px rgba(0, 188, 212, 0.3);
     }
 
-    .dashboard, .admin-panel, .translate-box {
-      background: var(--card);
-      border-radius: 20px;
-      margin-top: 1.5rem;
-      padding: 1.5rem;
-      text-align: left;
-      width: 100%;
-      word-break: break-word;
-    }
-
-    .dashboard h3, .admin-panel h3, .translate-box h3 {
-      margin-bottom: 1rem;
-      color: var(--accent);
-    }
-
-    .history ul, .admin-panel ul {
-      list-style: none;
-      max-height: 150px;
-      overflow-y: auto;
-      padding-left: 1rem;
-    }
-
-    .history li, .admin-panel li {
-      margin: 5px 0;
-      font-size: 0.9rem;
-      color: var(--text);
-      word-break: break-word;
-    }
-
-    #qrcode { margin-top: 1rem; }
-    #progress { width: 100%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; }
-    #progress-bar { height: 100%; background: var(--highlight); width: 0%; transition: 0.3s; }
-
     footer {
       position: fixed;
       bottom: 0.8rem;
       font-size: 0.85rem;
       color: rgba(255, 255, 255, 0.4);
     }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   </style>
 </head>
+<body>
+  <video autoplay muted loop id="bgVideo">
+    <source src="/static/bg.mp4" type="video/mp4">
+  </video>
+
+  <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+
+  <div class="card">
+    <h1>Universal Video Downloader</h1>
+    <input type="text" placeholder="Enter video URL">
+    <button>Preview</button>
+    <button>Download</button>
+  </div>
+
+  <footer>Made with 💙 using yt-dlp & Flask</footer>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-theme');
+      html.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+    }
+  </script>
+</body>
+</html>
