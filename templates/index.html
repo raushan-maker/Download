@@ -1,15 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Universal Video Downloader</title>
-  <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#0d1117">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="icon" type="image/png" href="/static/logo.png">
-  <meta name="google-signin-client_id" content="261916593681-9d78m382e50vnpls0jr7dkknpo2olpb3.apps.googleusercontent.com">
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#0d1117" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="icon" type="image/png" href="/static/logo.png" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     :root {
@@ -19,7 +18,6 @@
       --highlight: #00bcd4;
       --accent: #007cf0;
     }
-
     [data-theme="light"] {
       --bg: #f5f7fa;
       --card: rgba(255, 255, 255, 0.85);
@@ -27,14 +25,12 @@
       --highlight: #007cf0;
       --accent: #00bcd4;
     }
-
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: 'Poppins', sans-serif;
     }
-
     body {
       background-color: var(--bg);
       color: var(--text);
@@ -47,7 +43,6 @@
       transition: 0.3s;
       overflow-x: hidden;
     }
-
     video#bgVideo {
       position: fixed;
       top: 0;
@@ -58,7 +53,6 @@
       z-index: -1;
       opacity: 0.15;
     }
-
     .theme-toggle {
       position: fixed;
       top: 1rem;
@@ -72,12 +66,10 @@
       font-weight: bold;
       transition: 0.3s;
     }
-
     .theme-toggle:hover {
       background-color: var(--highlight);
       color: var(--bg);
     }
-
     .card {
       background: var(--card);
       backdrop-filter: blur(15px);
@@ -88,14 +80,14 @@
       width: 100%;
       text-align: center;
       animation: fadeInUp 0.8s ease-in-out;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
-
     .card h1 {
       font-size: 2.5rem;
       margin-bottom: 1rem;
       color: var(--highlight);
     }
-
     .card input[type="text"], .card select {
       width: 100%;
       padding: 1rem;
@@ -106,7 +98,6 @@
       color: var(--text);
       font-size: 1rem;
     }
-
     .card button {
       padding: 0.8rem 2rem;
       border: none;
@@ -119,45 +110,41 @@
       cursor: pointer;
       transition: 0.3s;
     }
-
     .card button:hover {
       transform: translateY(-3px);
       box-shadow: 0 10px 20px rgba(0, 188, 212, 0.3);
     }
-
+    .dashboard, .admin-panel, .translate-box {
+      background: var(--card);
+      border-radius: 20px;
+      margin-top: 1.5rem;
+      padding: 1.5rem;
+      text-align: left;
+      width: 100%;
+    }
+    .dashboard h3, .admin-panel h3, .translate-box h3 {
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+    .history ul, .admin-panel ul {
+      list-style: none;
+      max-height: 150px;
+      overflow-y: auto;
+      padding-left: 1rem;
+    }
+    .history li, .admin-panel li {
+      margin: 5px 0;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
     footer {
       position: fixed;
       bottom: 0.8rem;
       font-size: 0.85rem;
       color: rgba(255, 255, 255, 0.4);
     }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
   </style>
-
-  <link rel="manifest" href="/manifest.json">
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js').catch(err => console.error('SW failed', err));
-    }
-  </script>
-  <script>
-    window.addEventListener('load', () => {
-      const userLang = navigator.language || navigator.userLanguage;
-      console.log("Detected language:", userLang);
-    });
-  </script>
 </head>
-
 <body>
   <video autoplay muted loop id="bgVideo">
     <source src="/static/bg.mp4" type="video/mp4">
@@ -166,76 +153,99 @@
   <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
 
   <div class="card">
-    <img src="/static/logo.png" alt="App Logo" style="width: 80px; border-radius: 50%; margin-bottom: 1rem;">
-    <h1>Universal Video Downloader</h1>
-    
-    <form method="POST" action="/download">
-      <label for="format" style="display:block; margin: 0.5rem 0; font-weight: bold;">Select Format</label>
-      <select name="format" id="format" required style="margin-bottom: 1rem; padding: 0.5rem; border-radius: 10px; width: 100%;">
+    <div id="g_id_onload"
+         data-client_id="261916593681-9d78m382e50vnpls0jr7dkknpo2olpb3.apps.googleusercontent.com"
+         data-callback="handleGoogleLogin"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
+
+    <h1>📥 Universal Downloader</h1>
+    <form id="download-form" method="POST" action="/download">
+      <input type="text" id="url" name="url" placeholder="Paste video URL here..." required>
+      <label for="format">Choose Format:</label>
+      <select name="format" id="format">
         <option value="best">Best</option>
         <option value="mp4_1080p">MP4 1080p</option>
         <option value="mp4_720p">MP4 720p</option>
         <option value="mp4_480p">MP4 480p</option>
       </select>
+      <div>
+        <button type="button" onclick="previewVideo()">Preview</button>
+        <button type="submit">Download</button>
+      </div>
+    </form>
+    <div class="loader" id="loader" style="display:none;">⏳ Loading...</div>
+    <div class="thumbnail" id="video-preview" style="display:none;">
+      <img id="video-thumbnail" src="" alt="Thumbnail" style="max-width:100%; border-radius:10px;">
+      <div class="title" id="video-title"></div>
+    </div>
+    <div id="stats">📊 Downloads: <strong>1234</strong></div>
+  </div>
 
-      <input type="text" id="url" name="url" placeholder="Enter video URL" required>
-      <button type="button" onclick="previewVideo()">Preview</button>
-      <button type="submit">Download</button>
-    </form><div id="stats" style="margin-top: 1rem; font-size: 0.9rem; color: var(--text);">📊 Downloads: <span id="download-count">1234</span></div>
-    <div id="video-info" style="display:none; margin-top: 20px;">
-      <img id="video-thumbnail" src="" alt="Thumbnail" style="max-width:100%; border-radius:15px;" />
-      <p id="video-title" style="margin-top: 10px; font-weight: bold;"></p>
+  <div class="dashboard">
+    <h3>👤 User Dashboard</h3>
+    <div class="history">
+      <ul>
+        <li>Video 1 - 720p - 2025-07-07</li>
+        <li>Video 2 - 1080p - 2025-07-06</li>
+      </ul>
     </div>
   </div>
 
-  <footer>Made with 💙 using yt-dlp & Flask<button onclick="installApp()" style="margin-top: 1rem; background: var(--card); color: var(--text); border: 1px solid var(--highlight); padding: 0.5rem 1rem; border-radius: 10px; cursor: pointer;">📲 Install App</button>
+  <div class="admin-panel">
+    <h3>📤 Admin Analytics Panel</h3>
+    <ul>
+      <li>Total Downloads: <strong>5324</strong></li>
+      <li>Total Users: <strong>218</strong></li>
+    </ul>
+  </div>
+
+  <div class="translate-box">
+    <h3>🌍 Auto Translation</h3>
+    <p>This content auto adapts based on browser language: <strong><script>document.write(navigator.language)</script></strong></p>
+  </div>
+
+  <footer>
+    Made with ❤️ using Flask + yt-dlp
   </footer>
-  <script>
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-    });
-
-    function installApp() {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-          deferredPrompt = null;
-        });
-      }
-    }
-  </script>
 
   <script>
-    function toggleTheme() {
-      const html = document.documentElement;
-      const currentTheme = html.getAttribute('data-theme');
-      html.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
-    }
-
     function previewVideo() {
       const url = document.getElementById('url').value;
       if (!url) return;
-
+      document.getElementById('loader').style.display = 'block';
       fetch('/video_info', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ url: url })
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: new URLSearchParams({url})
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.error) {
-          alert("Error: " + data.error);
-        } else {
+        .then(res => res.json())
+        .then(data => {
+          document.getElementById('loader').style.display = 'none';
+          if (data.error) return alert("❌ " + data.error);
+          document.getElementById('video-preview').style.display = 'block';
           document.getElementById('video-thumbnail').src = data.thumbnail;
-          document.getElementById('video-title').textContent = data.title;
-          document.getElementById('video-info').style.display = 'block';
-        }
-      })
-      .catch(() => {
-        alert("Failed to load video info.");
-      });
+          document.getElementById('video-title').innerText = data.title;
+        })
+        .catch(() => {
+          document.getElementById('loader').style.display = 'none';
+          alert("❌ Failed to fetch preview");
+        });
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+
+    function handleGoogleLogin(response) {
+      const profile = JSON.parse(atob(response.credential.split('.')[1]));
+      alert("👋 Welcome " + profile.name);
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').catch(console.error);
     }
   </script>
 </body>
