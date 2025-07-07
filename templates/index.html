@@ -1,70 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <title>YT-DLP Video Downloader</title>
-  <link rel="stylesheet" href="/static/style.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YT-DLP Video Downloader</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: black;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    video#bgVideo {
+      position: absolute;
+      top: 0;
+      left: 0;
+      min-width: 100%;
+      min-height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      opacity: 0.4;
+    }
+
+    .container {
+      background: rgba(0, 0, 0, 0.75);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      color: white;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 20px;
+      color: #00eaff;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      margin-bottom: 20px;
+      font-size: 1rem;
+    }
+
+    button {
+      background: linear-gradient(135deg, #00eaff, #0080ff);
+      border: none;
+      padding: 12px 25px;
+      border-radius: 10px;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    button:hover {
+      background: linear-gradient(135deg, #0080ff, #00eaff);
+      transform: scale(1.05);
+    }
+
+    .thumbnail {
+      margin-top: 20px;
+    }
+
+    .thumbnail img {
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .title {
+      font-size: 1rem;
+      color: #00eaff;
+    }
+  </style>
 </head>
+
 <body>
   <video autoplay muted loop id="bgVideo">
     <source src="/static/bg.mp4" type="video/mp4">
-    Your browser does not support the video tag.
   </video>
 
-  <div class="wrapper">
-    <div class="card glass">
-      <h1>📥 Video Downloader</h1>
-      <form id="downloadForm" action="/download" method="POST">
-        <input type="text" name="url" id="urlInput" placeholder="Paste YouTube/video URL" required>
-        <button type="submit">Download</button>
-      </form>
-
-      <div id="preview" style="margin-top: 20px; display: none;">
-        <img id="thumb" src="" alt="Thumbnail" style="max-width: 100%; border-radius: 12px;">
-        <h3 id="title" style="color: white; margin-top: 10px;"></h3>
-      </div>
-
-      <p class="footer">❤️‍🩹MADE BY ROHIT⚡</p>
+  <div class="container">
+    <h1>YT-DLP Video Downloader</h1>
+    <form id="download-form" method="POST" action="/download">
+      <input type="text" id="url" name="url" placeholder="Paste video URL here" required>
+      <button type="button" onclick="previewVideo()">Preview</button>
+      <button type="submit">Download</button>
+    </form>
+    <div class="thumbnail" id="video-preview" style="display: none;">
+      <img id="video-thumbnail" src="" alt="Thumbnail">
+      <div class="title" id="video-title"></div>
     </div>
   </div>
 
   <script>
-    const urlInput = document.getElementById('urlInput');
-    const preview = document.getElementById('preview');
-    const thumb = document.getElementById('thumb');
-    const title = document.getElementById('title');
+    function previewVideo() {
+      const url = document.getElementById('url').value;
+      if (!url) return;
 
-    let timeout = null;
-
-    urlInput.addEventListener('input', () => {
-      clearTimeout(timeout);
-      timeout = setTimeout(() => {
-        const url = urlInput.value.trim();
-        if (!url) return;
-
-        const formData = new FormData();
-        formData.append('url', url);
-
-        fetch('/video_info', {
-          method: 'POST',
-          body: formData
-        })
+      fetch('/video_info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ url })
+      })
         .then(res => res.json())
         .then(data => {
           if (data.error) {
-            preview.style.display = "none";
-          } else {
-            thumb.src = data.thumbnail;
-            title.textContent = data.title;
-            preview.style.display = "block";
+            alert('Error: ' + data.error);
+            return;
           }
+          document.getElementById('video-preview').style.display = 'block';
+          document.getElementById('video-thumbnail').src = data.thumbnail;
+          document.getElementById('video-title').innerText = data.title;
         })
-        .catch(() => {
-          preview.style.display = "none";
-        });
-      }, 1000);
-    });
+        .catch(err => alert('Failed to fetch video info'));
+    }
   </script>
 </body>
+
 </html>
