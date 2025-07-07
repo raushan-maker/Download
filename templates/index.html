@@ -153,9 +153,15 @@
 
   <div class="card">
     <h1>Universal Video Downloader</h1>
-    <input type="text" placeholder="Enter video URL">
-    <button>Preview</button>
-    <button>Download</button>
+    <form method="POST" action="/download">
+      <input type="text" id="url" name="url" placeholder="Enter video URL" required>
+      <button type="button" onclick="previewVideo()">Preview</button>
+      <button type="submit">Download</button>
+    </form>
+    <div id="video-info" style="display:none; margin-top: 20px;">
+      <img id="video-thumbnail" src="" alt="Thumbnail" style="max-width:100%; border-radius:15px;" />
+      <p id="video-title" style="margin-top: 10px; font-weight: bold;"></p>
+    </div>
   </div>
 
   <footer>Made with 💙 using yt-dlp & Flask</footer>
@@ -165,6 +171,30 @@
       const html = document.documentElement;
       const currentTheme = html.getAttribute('data-theme');
       html.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+    }
+
+    function previewVideo() {
+      const url = document.getElementById('url').value;
+      if (!url) return;
+
+      fetch('/video_info', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ url: url })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          alert("Error: " + data.error);
+        } else {
+          document.getElementById('video-thumbnail').src = data.thumbnail;
+          document.getElementById('video-title').textContent = data.title;
+          document.getElementById('video-info').style.display = 'block';
+        }
+      })
+      .catch(() => {
+        alert("Failed to load video info.");
+      });
     }
   </script>
 </body>
