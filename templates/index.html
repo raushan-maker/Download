@@ -143,7 +143,21 @@
       }
     }
   </style>
+
+  <link rel="manifest" href="/manifest.json">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').catch(err => console.error('SW failed', err));
+    }
+  </script>
+  <script>
+    window.addEventListener('load', () => {
+      const userLang = navigator.language || navigator.userLanguage;
+      console.log("Detected language:", userLang);
+    });
+  </script>
 </head>
+
 <body>
   <video autoplay muted loop id="bgVideo">
     <source src="/static/bg.mp4" type="video/mp4">
@@ -152,19 +166,46 @@
   <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
 
   <div class="card">
+    <img src="/static/logo.png" alt="App Logo" style="width: 80px; border-radius: 50%; margin-bottom: 1rem;">
     <h1>Universal Video Downloader</h1>
+    
     <form method="POST" action="/download">
+      <label for="format" style="display:block; margin: 0.5rem 0; font-weight: bold;">Select Format</label>
+      <select name="format" id="format" required style="margin-bottom: 1rem; padding: 0.5rem; border-radius: 10px; width: 100%;">
+        <option value="best">Best</option>
+        <option value="mp4_1080p">MP4 1080p</option>
+        <option value="mp4_720p">MP4 720p</option>
+        <option value="mp4_480p">MP4 480p</option>
+      </select>
+
       <input type="text" id="url" name="url" placeholder="Enter video URL" required>
       <button type="button" onclick="previewVideo()">Preview</button>
       <button type="submit">Download</button>
-    </form>
+    </form><div id="stats" style="margin-top: 1rem; font-size: 0.9rem; color: var(--text);">📊 Downloads: <span id="download-count">1234</span></div>
     <div id="video-info" style="display:none; margin-top: 20px;">
       <img id="video-thumbnail" src="" alt="Thumbnail" style="max-width:100%; border-radius:15px;" />
       <p id="video-title" style="margin-top: 10px; font-weight: bold;"></p>
     </div>
   </div>
 
-  <footer>Made with 💙 using yt-dlp & Flask</footer>
+  <footer>Made with 💙 using yt-dlp & Flask<button onclick="installApp()" style="margin-top: 1rem; background: var(--card); color: var(--text); border: 1px solid var(--highlight); padding: 0.5rem 1rem; border-radius: 10px; cursor: pointer;">📲 Install App</button>
+  </footer>
+  <script>
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    function installApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => {
+          deferredPrompt = null;
+        });
+      }
+    }
+  </script>
 
   <script>
     function toggleTheme() {
