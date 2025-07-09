@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://readme-typing-svg.herokuapp.com/?center=true&vCenter=true&width=700&lines=🚀+Welcome+to+Universal+Video+%26+Spotify+Downloader;Built+with+YT-DLP+%7C+Flask+%7C+Spotipy;Download+from+1000%2B+Platforms+%F0%9F%94%A5"/>
+  <img src="https://readme-typing-svg.herokuapp.com/?center=true&vCenter=true&width=700&lines=🚀+🥀Welcome+to+Universal+Video🥀+%26+Spotify+Downloader;Built+with+Love❤️‍🩹🥀+%7C+Flask+%7C+Spotipy;Download+from+1000%2B+Platforms+%F0%9F%94%A5"/>
 </p>
 
 <h1 align="center">
