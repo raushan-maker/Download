@@ -13,7 +13,9 @@
   <img src="https://img.shields.io/badge/Flask-%20Python-blue?style=for-the-badge&logo=flask" />
   <img src="https://img.shields.io/badge/yt--dlp-Supported-orange?style=for-the-badge" />
 </p>
-
+<p align="center">
+  <img src="https://media.giphy.com/media/jt7bAtEijhurm/giphy.gif" width="500" />
+</p>
 ---
 
 ## 🌐 Live Demo
@@ -39,14 +41,6 @@
 ## 🧠 About This Project
 
 > This is a premium-level SaaS-style **Video + Spotify Downloader**, with a stylish UI, dynamic features, Google login, download analytics, and instant format previews — powered by `yt-dlp`, `Flask`, and `Spotipy`. 
-
----
-
-## 🖼️ GIF Preview
-
-<p align="center">
-  <img src="https://media.giphy.com/media/jt7bAtEijhurm/giphy.gif" width="500" />
-</p>
 
 ---
 
