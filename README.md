@@ -1,227 +1,223 @@
-<h1 align="center" style="font-size:3rem; color:#00ffc8; text-shadow: 0 0 15px #00ffc8, 0 0 30px #00ffc8;">
-  🔥 Ultimate Video Downloader 💎
+<h1 align="center" style="font-size: 3rem; color: #00ffe1; text-shadow: 0 0 10px #00ffe1, 0 0 20px #00ffe1, 0 0 30px #00ffe1;">
+  ✨🔥 Ultimate YT + Spotify Downloader 🔻🎶
 </h1><p align="center">
-  <img src="https://img.shields.io/github/license/rohitt99/yt-dlp-downloader?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Powered%20By-Flask%20%26%20Python-blue?style=for-the-badge&logo=flask" />
-  <img src="https://img.shields.io/badge/YT--DLP-Enabled-orange?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/Spotify-Supported-green?style=for-the-badge&logo=spotify" />
+  <img src="https://img.shields.io/github/license/rohitt99/yt-dlp-downloader?style=for-the-badge&color=blueviolet" />
+  <img src="https://img.shields.io/badge/Made%20with-Flask%20%2B%20Python-00c8ff?style=for-the-badge&logo=flask" />
+  <img src="https://img.shields.io/badge/yt--dlp-SUPPORTED-ff5050?style=for-the-badge&logo=youtube" />
+  <img src="https://img.shields.io/badge/Spotify-Downloader-1DB954?style=for-the-badge&logo=spotify" />
 </p><p align="center">
-  <img src="https://media.giphy.com/media/jt7bAtEijhurm/giphy.gif" width="350" alt="Downloading..." />
+  <img src="https://media.giphy.com/media/jt7bAtEijhurm/giphy.gif" width="300" alt="Downloading..." />
 </p>
 ---
 
-🚀 Live Demo
+🌐 <span style="color:#0afff9">Live Demo</span>
 
 
 
 
 ---
 
-🧠 About the Project
+🤖 <span style="color:#ff00ff">About the Project</span>
 
-> Universal Video & Music Downloader — built with yt-dlp, Flask, and 🔥 modern web technologies. Supports YouTube, Spotify, TikTok, Instagram, Twitter, Facebook, Vimeo, and more.
+> 🚀 A premium SaaS-level Universal Media Downloader that supports:
 
-🎧 New: Spotify integration to download tracks via YouTube!
+YouTube 🎥
+
+Spotify 🎧
+
+TikTok, Vimeo, Facebook, Instagram, X (Twitter) and more
+
+
+
+
+> Features like:
+
+Google Login 🔐
+
+Language Auto-detect 🌍
+
+Admin Panel 📊
+
+Format Selector 🎚️
+
+PWA-ready 📲
+
+Background video 🌌
+
+
+
+
+🛠 Built with Flask, yt-dlp, Spotipy, HTML, CSS, JS.
+
+
+---
+
+✨ <span style="color:#ffaa00">Core Features</span>
+
+✅ <span style="color:#f92eff">Download from 1000+ websites</span>
+✅ <span style="color:#0aff0a">Spotify song downloader integration</span>
+✅ <span style="color:#00ffff">Auto preview: title + thumbnail</span>
+✅ <span style="color:#ffd700">Responsive & aesthetic UI</span>
+✅ <span style="color:#ff69b4">Custom format selection</span>
+✅ <span style="color:#ff4500">PWA: installable as app</span>
+✅ <span style="color:#f0f">Cookies.txt support (YouTube login)</span>
+
+
+---
+
+🔐 YouTube & Cookies.txt
+
+📛 Due to YouTube's restriction, login cookies are required to bypass age/content blocks.
+
+📥 How To Export:
+
+1. 🔌 Install Get cookies.txt Extension
+
+
+2. 🌐 Open youtube.com
+
+
+3. 📁 Click extension → Download cookies
+
+
+4. 💾 Rename to cookies.txt and place in root folder
 
 
 
 
 ---
 
-🔐 YouTube Cookie Support
+📸 Screenshots
 
-Due to recent changes, YouTube downloads may require login cookies for full functionality.
-
-✅ This app supports cookies.txt, so you can:
-
-Download age-restricted, private, and login-only YouTube content
-
-Still use all other platforms without cookies
-
-
-📥 Export Cookies Guide
-
-1. Install Get cookies.txt Extension
-
-
-2. Open YouTube in your browser
-
-
-3. Click the extension → Export
-
-
-4. Save it as cookies.txt in the project root
-
-
-
-
----
-
-✨ Features
-
-🎞️ Download videos from 1000+ websites
-
-🎧 Spotify Song Downloader via YouTube Search
-
-🔍 Auto video preview (title + thumbnail)
-
-🎬 Format selector (MP4 1080p, 720p, 480p, best)
-
-👥 Google login (user tracking, stats, dashboard)
-
-📊 Admin Panel (downloads, users, stats)
-
-🌐 Multilingual UI via auto browser detection
-
-📲 Installable PWA version (mobile app-like)
-
-🌈 Beautiful animated UI + Dark/Light mode toggle
-
-🔐 Cookie support for YouTube downloads
-
-☁️ Render, VPS & Replit deployment supported
-
-
-
----
-
-🖼️ Screenshots
-
-🎯 Enter URL	🔍 Preview	📥 Download
+🔍 Preview	🎬 Video Info	✅ Download
 
 		
 
 
-> (Replace above with real screenshots!)
-
-
-
 
 ---
 
-📂 Folder Structure
+📁 Folder Structure
 
-yt_dlp_downloader/
-├── app.py                   # Flask backend
-├── spotify.py               # Spotify downloader logic
-├── requirements.txt         # Python dependencies
-├── cookies.txt              # (optional) YouTube login cookies
+📦 saas_video_downloader
+├── app.py
+├── spotify.py               # 🎧 Spotify song downloader logic
+├── cookies.txt              # 🔐 For YouTube login
+├── downloads/               # 📥 Saved files
 ├── static/
-│   ├── bg.mp4               # Background video
-│   └── logo.png             # Favicon/logo
+│   ├── bg.mp4               # 🎞️ Background video
+│   └── logo.png             # 🔥 Branding logo
 ├── templates/
-│   └── index.html           # Main UI
-├── downloads/               # Saved videos/mp3s
-├── manifest.json            # For PWA install support
-├── service-worker.js        # PWA offline caching
+│   └── index.html           # 🎨 HTML frontend
+├── manifest.json            # 📱 PWA metadata
+├── service-worker.js        # 🔄 PWA caching
+├── requirements.txt         # 📦 Dependencies
 └── README.md
 
 
 ---
 
-⚙️ Installation
+🚀 Run Locally
 
-1️⃣ Install Dependencies
-
+git clone https://github.com/rohitt99/yt-dlp-downloader
+cd yt-dlp-downloader
 pip install -r requirements.txt
-
-2️⃣ Run Locally
-
 python app.py
 
-Then open: http://127.0.0.1:5000
+Then open http://127.0.0.1:5000 in browser.
 
 
 ---
 
-🌐 Deploy Anywhere
+🌍 Hosting Support
 
-✅ Supported on:
+✅ Works on:
 
-Render.com (free hosting)
+🌐 Render.com
 
-Replit.com
+💻 Replit
 
-VPS (Ubuntu, Python3, etc)
-
-Localhost
+🚀 VPS / localhost
 
 
-> 📌 Ensure your app.py ends with:
-
-
+⚠️ Use dynamic port binding:
 
 port = int(os.environ.get("PORT", 5000))
-app.run(host="0.0.0.0", port=port, debug=True)
+app.run(host='0.0.0.0', port=port, debug=True)
 
 
 ---
 
-💻 Supported Platforms
+🌐 Supported Sites (yt-dlp)
 
-✅ YouTube (with cookies.txt)
+YouTube ✅ (use cookies.txt)
 
-✅ TikTok
+TikTok ✅
 
-✅ Vimeo
+Vimeo ✅
 
-✅ Facebook
+Facebook ✅
 
-✅ Instagram
+Instagram ✅
 
-✅ Twitter (X)
+Twitter (X) ✅
 
-✅ Reddit
+SoundCloud ✅
 
-✅ SoundCloud
+Reddit ✅
 
-✅ Spotify (via YouTube)
-
-✅ 1000+ others via yt-dlp
+🔥 +1000 others
 
 
-🔗 Full supported sites list
+🔗 Full List → yt-dlp supported sites
 
 
 ---
 
-🛡️ Disclaimer
+⚠️ Legal
 
-> 🚨 This project is for educational & personal use only.
-
-Downloading copyrighted content is against YouTube's TOS and may be illegal in your country. Use responsibly.
-
-
+This tool is built for educational/personal use only.
+Do not use it to download copyrighted content without permission.
 
 
 ---
 
-🧰 Tech Stack
+🧠 Tech Stack
 
-🐍 Python 3.10+
+Python + Flask 🐍
 
-⚙️ Flask
+yt-dlp 🎬
 
-📺 yt-dlp
+Spotipy 🎧
 
-🌍 HTML, CSS, JS
+HTML/CSS/JS ✨
 
-📲 PWA + Manifest + Service Worker
+Render / Replit ☁️
 
 
 
 ---
 
-🧑‍🚀 Author
+👑 Author
 
-Made with 💖 by Rohit Kumar
-
-
+> Made with ❤️‍🔥 by Rohit Kumar
 
 
+
+<p align="center">
+  <a href="https://github.com/rohitt99">
+    <img src="https://img.shields.io/badge/Follow--me-GitHub-000?style=for-the-badge&logo=github" />
+  </a>
+</p>
 ---
 
 📄 License
 
-Released under the MIT License
+Licensed under the MIT License
 
+
+---
+
+<p align="center" style="color:#0ff; font-weight: bold; font-size: 1.2rem;">
+✨ Built for creators, developers & music lovers. Let's make the web yours! ✨
+</p>
