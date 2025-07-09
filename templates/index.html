@@ -11,7 +11,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Universal Video Downloader</title>
-  <link rel="manifest" href="/manifest.json" />
   <meta name="theme-color" content="#0d1117" />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
@@ -156,17 +155,13 @@
   <video autoplay muted loop id="bgVideo">
     <source src="/static/bg.mp4" type="video/mp4">
   </video>
-
   <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
-
   <div class="card">
     <div id="g_id_onload"
          data-client_id="261916593681-9d78m382e50vnpls0jr7dkknpo2olpb3.apps.googleusercontent.com"
          data-callback="handleGoogleLogin"
-         data-auto_prompt="false">
-    </div>
+         data-auto_prompt="false"></div>
     <div class="g_id_signin" data-type="standard"></div>
-
     <h1>📥 Universal Downloader</h1>
     <form id="download-form" method="POST" action="/download">
       <input type="text" id="url" name="url" placeholder="Paste video URL here..." required>
@@ -182,6 +177,10 @@
         <button type="submit">Download</button>
       </div>
     </form>
+    <form id="spotify-form" method="POST" action="/spotify">
+      <input type="text" name="spotify_url" placeholder="Paste Spotify track URL here...">
+      <button type="submit">Download from Spotify</button>
+    </form>
     <div class="loader" id="loader" style="display:none;">⏳ Loading...</div>
     <div class="thumbnail" id="video-preview" style="display:none;">
       <img id="video-thumbnail" src="" alt="Thumbnail" style="max-width:100%; border-radius:10px;">
@@ -189,7 +188,6 @@
     </div>
     <div id="stats">📊 Downloads: <strong>4836</strong></div>
   </div>
-
   <div class="dashboard">
     <h3>👤 User Dashboard</h3>
     <div class="history">
@@ -199,7 +197,6 @@
       </ul>
     </div>
   </div>
-
   <div class="admin-panel">
     <h3>📤 Admin Analytics Panel</h3>
     <ul>
@@ -207,19 +204,16 @@
       <li>Total Users: <strong>218</strong></li>
     </ul>
   </div>
-
   <div class="translate-box">
     <h3>🌍 Auto Translation</h3>
     <p>This content auto adapts based on browser language: <strong><script>document.write(navigator.language)</script></strong></p>
   </div>
-
   <footer style="text-align: center; padding: 1rem; font-family: sans-serif; font-size: 14px; color: #555;">
     Made with <span style="color: red;">❤️‍🩹</span> by <strong>Rohit 🥀</strong> —
    <a href="https://github.com/rohitt99" target="_blank" style="color: #0366d6; text-decoration: none;">
     GitHub
    </a>
-  </footer>>
-
+  </footer>
   <script>
     function previewVideo() {
       const url = document.getElementById('url').value;
@@ -243,20 +237,16 @@
           alert("❌ Failed to fetch preview");
         });
     }
-
     function toggleTheme() {
       const html = document.documentElement;
       html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     }
-
     function handleGoogleLogin(response) {
       const profile = JSON.parse(atob(response.credential.split('.')[1]));
       alert("👋 Welcome " + profile.name);
     }
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js').catch(console.error);
-    }
   </script>
 </body>
 </html>
+
+  
