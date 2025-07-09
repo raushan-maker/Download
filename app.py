@@ -63,8 +63,11 @@ def spotify_download():
 
     query = get_track_info(spotify_url)
     if query:
-        download_from_youtube(query)
-        return render_template("index.html", message="✅ Spotify song downloaded!")
+        filepath = download_from_youtube(query)
+        if os.path.exists(filepath):
+            return send_file(filepath, as_attachment=True)
+        else:
+            return render_template("index.html", message="❌ Downloaded file not found.")
     else:
         return render_template("index.html", message="❌ Failed to download Spotify song.")
 
