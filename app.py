@@ -2,22 +2,11 @@ from flask import Flask, render_template, request, send_file, jsonify, redirect
 import yt_dlp
 import os
 import uuid
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-from spotify_downloader import get_track_info, download_from_youtube
+from spotify import get_track_info, download_from_youtube  # ✅ Spotify integration
 
 app = Flask(__name__)
 DOWNLOAD_FOLDER = "downloads"
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
-
-# Spotify API credentials
-SPOTIFY_CLIENT_ID = '15ca3d00f07847c39ce955672ed73176'
-SPOTIFY_CLIENT_SECRET = '4e836fcd0b3d4bbea37d6672d0c6c689'
-
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
-    client_id=SPOTIFY_CLIENT_ID,
-    client_secret=SPOTIFY_CLIENT_SECRET
-))
 
 @app.route('/')
 def index():
@@ -35,7 +24,7 @@ def download():
     ydl_opts = {
         'format': 'best',
         'outtmpl': output_path,
-        'cookiefile': 'cookies.txt'  # ✅ Use YouTube cookies
+        'cookiefile': 'cookies.txt'  # ✅ YouTube cookies support
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -55,7 +44,7 @@ def video_info():
             'quiet': True,
             'skip_download': True,
             'forcejson': True,
-            'cookiefile': 'cookies.txt'  # ✅ Use cookies for preview too
+            'cookiefile': 'cookies.txt'
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
