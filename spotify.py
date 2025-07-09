@@ -25,14 +25,18 @@ def download_from_youtube(query):
     print(f"🔍 Searching and downloading: {query}")
     ydl_opts = {
         'format': 'bestaudio/best',
-        'outtmpl': '%(title)s.%(ext)s',
+        'outtmpl': 'downloads/%(title)s.%(ext)s',
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
-        'quiet': False
+        'quiet': True
     }
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([f"ytsearch:{query}"])
+        result = ydl.download([f"ytsearch:{query}"])
+        info = ydl.extract_info(f"ytsearch:{query}", download=False)
+        filename = ydl.prepare_filename(info['entries'][0])
+        final_path = filename.rsplit('.', 1)[0] + '.mp3'
+        return final_path
