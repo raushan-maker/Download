@@ -68,8 +68,8 @@ universal-downloader/
 ## ⚙️ Setup Locally
 
 ```bash
-git clone https://github.com/rohitt99/universal-video-downloader.git
-cd universal-video-downloader
+git clone https://github.com/rohitt99/Download
+cd download
 pip install -r requirements.txt
 python app.py
 ```
