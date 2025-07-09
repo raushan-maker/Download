@@ -20,7 +20,7 @@
 
 ## 🌐 Live Demo
 
-👉 [Launch App Now](https://downloader-nuck.onrender.com/)
+👉 [Demo](https://downloader-nuck.onrender.com/)
 
 ---
 
