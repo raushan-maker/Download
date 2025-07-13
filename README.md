@@ -153,7 +153,7 @@ Body: spotify_url=...
 
 | URL Input | Video Info Preview | Admin Panel |
 |----------|---------------------|-------------|
-| ![](https://envs.sh/eiX.jpg) | ![](https://graph.org/file/d09b78a270ebaf4cb5818-71ce0d4f4c33dbc0f5.jpg) | ![](https://envs.sh/eiy.jpg) |
+| ![](https://envs.sh/eiX.jpg) | ![](https://files.catbox.moe/lt7jon.jpg) | ![](https://envs.sh/eiy.jpg) |
 
 > Replace with your actual screenshots
 
