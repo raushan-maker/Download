@@ -1,42 +1,94 @@
+import os
+from typing import Optional
+
+import requests
 import yt_dlp
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
+from downloader_utils import resolve_download_path
+from yt_dlp.utils import DownloadError
 
-# 🔑 Replace with your own Spotify API keys
-SPOTIFY_CLIENT_ID = '15ca3d00f07847c39ce955672ed73176'
-SPOTIFY_CLIENT_SECRET = '4e836fcd0b3d4bbea37d6672d0c6c689'
+OEMBED_ENDPOINT = "https://open.spotify.com/oembed"
 
-sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(
-    client_id=SPOTIFY_CLIENT_ID,
-    client_secret=SPOTIFY_CLIENT_SECRET
-))
 
-def get_track_info(spotify_url):
+def get_track_metadata(spotify_url: str) -> Optional[dict]:
     try:
-        track = sp.track(spotify_url)
-        title = track['name']
-        artist = track['artists'][0]['name']
-        return f"{title} - {artist}"
-    except Exception as e:
-        print("Error fetching track info:", e)
+        response = requests.get(OEMBED_ENDPOINT, params={'url': spotify_url}, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        title = data.get('title')
+        if not title:
+            return None
+        thumbnail = data.get('thumbnail_url')
+        return {
+            'query': title,
+            'title': title,
+            'thumbnail': thumbnail
+        }
+    except Exception as exc:
+        print(f"Error fetching Spotify metadata: {exc}")
         return None
 
-def download_from_youtube(query):
+
+def get_track_info(spotify_url: str) -> Optional[str]:
+    metadata = get_track_metadata(spotify_url)
+    return metadata['query'] if metadata else None
+
+
+def download_from_youtube(query: str) -> Optional[str]:
+    if not query:
+        return None
+
     print(f"🔍 Searching and downloading: {query}")
-    ydl_opts = {
+    os.makedirs('downloads', exist_ok=True)
+
+    base_opts = {
         'format': 'bestaudio/best',
-        'outtmpl': 'downloads/%(title)s.%(ext)s',
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'quiet': True
+        'outtmpl': 'downloads/%(title)s(-by Alex).%(ext)s',
+        'writethumbnail': True,
+        'postprocessors': [
+            {
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            },
+            {
+                'key': 'EmbedThumbnail',
+            }
+        ],
+        'quiet': True,
+        'noplaylist': True,
+        'overwrites': True,
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        result = ydl.download([f"ytsearch:{query}"])
-        info = ydl.extract_info(f"ytsearch:{query}", download=False)
-        filename = ydl.prepare_filename(info['entries'][0])
-        final_path = filename.rsplit('.', 1)[0] + '.mp3'
-        return final_path
+    if os.path.exists('cookies.txt'):
+        base_opts['cookiefile'] = 'cookies.txt'
+
+    def _run(opts):
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            search_result = ydl.extract_info(f"ytsearch1:{query}", download=True)
+            filepath = resolve_download_path(search_result, ydl, opts.get('outtmpl'))
+            if not filepath and 'entries' in search_result:
+                entries = search_result.get('entries') or []
+                if not entries:
+                    return None
+                info = entries[0]
+                filepath = resolve_download_path(info, ydl, opts.get('outtmpl'))
+            if not filepath or not os.path.exists(filepath):
+                raise FileNotFoundError(f"Spotify download finished but file missing: {filepath or 'unknown'}")
+            return filepath
+
+    try:
+        return _run(dict(base_opts))
+    except DownloadError as error:
+        if base_opts.get('cookiefile'):
+            print(f"Spotify download failed with cookies, retrying without... Error: {error}")
+            fallback_opts = dict(base_opts)
+            fallback_opts.pop('cookiefile', None)
+            try:
+                return _run(fallback_opts)
+            except FileNotFoundError:
+                return None
+        print(f"Spotify download error: {error}")
+        return None
+    except FileNotFoundError as missing:
+        print(missing)
+        return None
