@@ -4,7 +4,10 @@ from typing import Optional
 import requests
 import yt_dlp
 from downloader_utils import resolve_download_path
+from ffmpeg_utils import ensure_ffmpeg, BIN_DIR
 from yt_dlp.utils import DownloadError
+
+ensure_ffmpeg()
 
 OEMBED_ENDPOINT = "https://open.spotify.com/oembed"
 
@@ -57,6 +60,7 @@ def download_from_youtube(query: str) -> Optional[str]:
         'quiet': True,
         'noplaylist': True,
         'overwrites': True,
+        'ffmpeg_location': str(BIN_DIR),
     }
 
     if os.path.exists('cookies.txt'):
