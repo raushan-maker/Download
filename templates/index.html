@@ -164,22 +164,15 @@
     <div class="g_id_signin" data-type="standard"></div>
     <h1>📥 Universal Downloader</h1>
     <form id="download-form" method="POST" action="/download">
-      <input type="text" id="url" name="url" placeholder="Paste video URL here..." required>
+      <input type="text" id="url" name="url" placeholder="Paste video or Spotify URL here..." required>
       <label for="format">Choose Format:</label>
-      <select name="format" id="format">
-        <option value="best">Best</option>
-        <option value="mp4_1080p">MP4 1080p</option>
-        <option value="mp4_720p">MP4 720p</option>
-        <option value="mp4_480p">MP4 480p</option>
+      <select name="format" id="format" disabled>
+        <option value="best">Click "Fetch Qualities" first</option>
       </select>
       <div>
-        <button type="button" onclick="previewVideo()">Preview</button>
-        <button type="submit">Download</button>
+        <button type="button" id="fetch-button">Fetch Qualities</button>
+        <button type="submit" id="download-button" style="display:none;">Download</button>
       </div>
-    </form>
-    <form id="spotify-form" method="POST" action="/spotify">
-      <input type="text" name="spotify_url" placeholder="Paste Spotify track URL here...">
-      <button type="submit">Download from Spotify</button>
     </form>
     <div class="loader" id="loader" style="display:none;">⏳ Loading...</div>
     <div class="thumbnail" id="video-preview" style="display:none;">
@@ -209,16 +202,95 @@
     <p>This content auto adapts based on browser language: <strong><script>document.write(navigator.language)</script></strong></p>
   </div>
   <footer style="text-align: center; padding: 1rem; font-family: sans-serif; font-size: 14px; color: #555;">
-    Made with <span style="color: red;">❤️‍🩹</span> by <strong>Rohit 🥀</strong> —
-   <a href="https://github.com/rohitt99" target="_blank" style="color: #0366d6; text-decoration: none;">
-    GitHub
+    Made with <span style="color: red;">❤️‍🩹</span> by <strong>Alex 🥀</strong> —
+   <a href="https://t.me/daraggggggg" target="_blank" style="color: #0366d6; text-decoration: none;">
+    Telegram
    </a>
   </footer>
   <script>
+    const formatSelect = document.getElementById('format');
+    const downloadButton = document.getElementById('download-button');
+    const fetchButton = document.getElementById('fetch-button');
+    const urlInput = document.getElementById('url');
+    const previewContainer = document.getElementById('video-preview');
+    const thumbnailImg = document.getElementById('video-thumbnail');
+    const titleSpan = document.getElementById('video-title');
+    const loader = document.getElementById('loader');
+    const downloadForm = document.getElementById('download-form');
+
+    function resetUI() {
+      previewContainer.style.display = 'none';
+      thumbnailImg.src = '';
+      titleSpan.innerText = '';
+      downloadButton.style.display = 'none';
+      downloadButton.textContent = 'Download';
+      downloadButton.disabled = true;
+      fetchButton.disabled = false;
+      formatSelect.disabled = true;
+      formatSelect.innerHTML = '<option value="best">Click "Fetch Qualities" first</option>';
+      loader.style.display = 'none';
+    }
+
+    function isSpotify(url) {
+      const lowered = url.toLowerCase();
+      return lowered.includes('open.spotify.com') || lowered.startsWith('spotify:');
+    }
+
+    fetchButton.addEventListener('click', previewVideo);
+    urlInput.addEventListener('input', () => {
+      if (downloadButton.style.display !== 'none') {
+        resetUI();
+      }
+    });
+
+    downloadForm.addEventListener('submit', () => {
+      fetchButton.disabled = true;
+      downloadButton.disabled = true;
+      downloadButton.textContent = 'Downloading...';
+    });
+
     function previewVideo() {
       const url = document.getElementById('url').value;
       if (!url) return;
-      document.getElementById('loader').style.display = 'block';
+      loader.style.display = 'block';
+      downloadButton.style.display = 'none';
+      downloadButton.disabled = true;
+      formatSelect.disabled = true;
+      formatSelect.innerHTML = '<option>Loading options...</option>';
+
+      if (isSpotify(url)) {
+        fetch('/video_info', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+          body: new URLSearchParams({url})
+        })
+          .then(res => res.json())
+          .then(data => {
+            loader.style.display = 'none';
+            if (data.error) {
+              alert('❌ ' + data.error);
+              resetUI();
+              return;
+            }
+            previewContainer.style.display = 'block';
+            if (data.thumbnail) {
+              thumbnailImg.src = data.thumbnail;
+            }
+            titleSpan.innerText = data.title;
+            formatSelect.innerHTML = '<option value="best">Spotify download (MP3)</option>';
+            formatSelect.disabled = true;
+            downloadButton.style.display = 'inline-block';
+            downloadButton.textContent = 'Download Spotify';
+            downloadButton.disabled = false;
+          })
+          .catch(() => {
+            loader.style.display = 'none';
+            alert('❌ Failed to load Spotify details');
+            resetUI();
+          });
+        return;
+      }
+
       fetch('/video_info', {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -226,14 +298,42 @@
       })
         .then(res => res.json())
         .then(data => {
-          document.getElementById('loader').style.display = 'none';
-          if (data.error) return alert("❌ " + data.error);
-          document.getElementById('video-preview').style.display = 'block';
-          document.getElementById('video-thumbnail').src = data.thumbnail;
-          document.getElementById('video-title').innerText = data.title;
+          loader.style.display = 'none';
+          if (data.error) {
+             resetUI();
+             alert("❌ " + data.error);
+             return;
+          }
+           previewContainer.style.display = 'block';
+           if (data.thumbnail) {
+            thumbnailImg.src = data.thumbnail;
+           }
+           titleSpan.innerText = data.title;
+          
+          // Populate formats
+          formatSelect.innerHTML = ''; // Clear existing
+          
+          if (data.formats && data.formats.length > 0) {
+             data.formats.forEach(fmt => {
+                 const option = document.createElement('option');
+                 option.value = fmt.id;
+                 option.innerText = fmt.label;
+                 formatSelect.appendChild(option);
+             });
+          } else {
+             const option = document.createElement('option');
+             option.value = 'best';
+             option.innerText = 'Best Quality';
+             formatSelect.appendChild(option);
+          }
+           formatSelect.disabled = false;
+          downloadButton.textContent = 'Download';
+          downloadButton.disabled = false;
+          downloadButton.style.display = 'inline-block';
         })
         .catch(() => {
-          document.getElementById('loader').style.display = 'none';
+          loader.style.display = 'none';
+           resetUI();
           alert("❌ Failed to fetch preview");
         });
     }
@@ -245,6 +345,8 @@
       const profile = JSON.parse(atob(response.credential.split('.')[1]));
       alert("👋 Welcome " + profile.name);
     }
+
+    resetUI();
   </script>
 </body>
 </html>
