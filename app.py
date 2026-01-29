@@ -5,11 +5,14 @@ import re
 import requests
 from urllib.parse import urlparse
 from downloader_utils import resolve_download_path
+from ffmpeg_utils import ensure_ffmpeg, BIN_DIR
 from spotify import get_track_info, get_track_metadata, download_from_youtube  # ✅ Spotify integration
 
 app = Flask(__name__)
 DOWNLOAD_FOLDER = "downloads"
 os.makedirs(DOWNLOAD_FOLDER, exist_ok=True)
+
+ensure_ffmpeg()
 
 API_TOKEN = os.environ.get("NUBCODER_TOKEN", "CIMzU2EK0N")
 API_BASE_URL = "http://api.nubcoder.com"
@@ -130,6 +133,7 @@ def download():
             'key': 'EmbedThumbnail',  # ✅ Embed thumbnail in file
         }],
         'overwrites': True,           # Overwrite if file exists
+        'ffmpeg_location': str(BIN_DIR),
     }
 
     if os.path.exists('cookies.txt'):
