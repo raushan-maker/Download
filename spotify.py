@@ -36,7 +36,7 @@ def get_track_info(spotify_url: str) -> Optional[str]:
     return metadata['query'] if metadata else None
 
 
-def download_from_youtube(query: str) -> Optional[str]:
+def download_from_youtube(query: str, progress_hook=None) -> Optional[str]:
     if not query:
         return None
 
@@ -67,6 +67,8 @@ def download_from_youtube(query: str) -> Optional[str]:
         base_opts['cookiefile'] = 'cookies.txt'
 
     def _run(opts):
+        if progress_hook:
+            opts['progress_hooks'] = opts.get('progress_hooks', []) + [progress_hook]
         with yt_dlp.YoutubeDL(opts) as ydl:
             search_result = ydl.extract_info(f"ytsearch1:{query}", download=True)
             filepath = resolve_download_path(search_result, ydl, opts.get('outtmpl'))
