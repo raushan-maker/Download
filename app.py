@@ -184,7 +184,20 @@ def download_via_api(
     filename = f"{title}(-by Alex){parsed_ext}"
     filepath = os.path.join(DOWNLOAD_FOLDER, filename)
 
-    headers = api_data.get("headers") or {}
+    headers = dict(api_data.get("headers") or {})
+    headers.setdefault(
+        "User-Agent",
+        (
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/121.0.0.0 Safari/537.36"
+        ),
+    )
+    headers.setdefault("Accept", "*/*")
+    headers.setdefault("Connection", "keep-alive")
+    referer = api_data.get("referer") or api_data.get("origin") or api_data.get("page")
+    if referer:
+        headers.setdefault("Referer", referer)
 
     try:
         with requests.get(download_url, stream=True, headers=headers, timeout=60) as response:
@@ -210,6 +223,8 @@ def download_via_api(
                         progress_callback(percent, size_msg)
     except Exception as exc:
         print(f"API download failed: {exc}")
+        if progress_callback:
+            progress_callback(0, f"Fallback error: {exc}")
         if os.path.exists(filepath):
             try:
                 os.remove(filepath)
