@@ -243,6 +243,41 @@
 			font-size: 0.95rem;
 			color: var(--muted);
 		}
+		.progress-track {
+			display: none;
+			flex-direction: column;
+			gap: 0.6rem;
+			margin-top: 0.5rem;
+			background: rgba(99, 102, 241, 0.14);
+			border: 1px solid var(--border);
+			border-radius: 16px;
+			padding: 1rem 1.2rem;
+		}
+		.progress-track.is-error {
+			background: rgba(239, 68, 68, 0.12);
+			border-color: rgba(239, 68, 68, 0.5);
+		}
+		.progress-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			font-size: 0.85rem;
+			color: var(--muted);
+		}
+		.progress-bar {
+			width: 100%;
+			height: 9px;
+			border-radius: 999px;
+			overflow: hidden;
+			background: rgba(255, 255, 255, 0.08);
+		}
+		.progress-fill {
+			height: 100%;
+			width: 0%;
+			border-radius: 999px;
+			background: linear-gradient(135deg, var(--highlight), var(--accent));
+			transition: width 0.25s ease;
+		}
 		.preview {
 			display: none;
 			flex-direction: column;
@@ -468,6 +503,15 @@
 						</div>
 					</form>
 					<div class="status-row" id="loader" style="display:none;">⏳ Fetching formats…</div>
+					<div class="progress-track" id="progress-track" aria-hidden="true">
+						<div class="progress-header">
+							<span id="progress-label">Preparing download...</span>
+							<span id="progress-percent">0%</span>
+						</div>
+						<div class="progress-bar">
+							<div class="progress-fill" id="progress-fill"></div>
+						</div>
+					</div>
 				</div>
 				<div class="preview" id="video-preview">
 					<img id="video-thumbnail" src="" alt="Video thumbnail">
@@ -516,6 +560,10 @@
 		const adminUsersCounter = document.getElementById('admin-users-count');
 		const historyList = document.getElementById('history-list');
 		const cardBody = document.getElementById('card-body');
+		const progressTrack = document.getElementById('progress-track');
+		const progressFill = document.getElementById('progress-fill');
+		const progressLabel = document.getElementById('progress-label');
+		const progressPercent = document.getElementById('progress-percent');
 
 		const METRICS_KEY = 'uvd-metrics-v1';
 		const HISTORY_KEY = 'uvd-history-v1';
@@ -526,7 +574,10 @@
 		let history = [];
 		let lastPreview = null;
 		let isDownloading = false;
-		let downloadTimeout = null;
+		let activeJobId = null;
+		let statusPoll = null;
+		let hideProgressTimer = null;
+		let pendingFormatLabel = 'Best Quality';
 
 		function loadMetrics() {
 			try {
@@ -594,6 +645,50 @@
 			});
 		}
 
+		function clearPolling() {
+			if (statusPoll) {
+				clearTimeout(statusPoll);
+				statusPoll = null;
+			}
+		}
+
+		function hideProgressUI() {
+			if (hideProgressTimer) {
+				clearTimeout(hideProgressTimer);
+				hideProgressTimer = null;
+			}
+			progressTrack.style.display = 'none';
+			progressTrack.setAttribute('aria-hidden', 'true');
+			progressTrack.classList.remove('is-error');
+			progressFill.style.width = '0%';
+			progressPercent.textContent = '0%';
+			progressLabel.textContent = '';
+		}
+
+		function showProgressUI(progress = 0, message = 'Preparing download...') {
+			if (hideProgressTimer) {
+				clearTimeout(hideProgressTimer);
+				hideProgressTimer = null;
+			}
+			progressTrack.style.display = 'flex';
+			progressTrack.setAttribute('aria-hidden', 'false');
+			progressTrack.classList.remove('is-error');
+			updateProgressUI(progress, message);
+		}
+
+		function updateProgressUI(progress, message) {
+			if (typeof progress === 'number' && !Number.isNaN(progress)) {
+				const clamped = Math.max(0, Math.min(100, Math.round(progress)));
+				progressFill.style.width = clamped + '%';
+				progressPercent.textContent = clamped + '%';
+			} else if (progress === null) {
+				progressPercent.textContent = '--';
+			}
+			if (message) {
+				progressLabel.textContent = message;
+			}
+		}
+
 		function addHistoryEntry(entry) {
 			history.unshift(entry);
 			if (history.length > 12) {
@@ -604,6 +699,8 @@
 		}
 
 		function resetUI() {
+			clearPolling();
+			hideProgressUI();
 			previewContainer.style.display = 'none';
 			cardBody.classList.remove('with-preview');
 			thumbnailImg.src = '';
@@ -616,10 +713,9 @@
 			formatSelect.innerHTML = '<option value="best">Click "Fetch Qualities" first</option>';
 			loader.style.display = 'none';
 			lastPreview = null;
-			if (downloadTimeout) {
-				clearTimeout(downloadTimeout);
-				downloadTimeout = null;
-			}
+			pendingFormatLabel = 'Best Quality';
+			isDownloading = false;
+			activeJobId = null;
 		}
 
 		function isSpotify(url) {
@@ -627,17 +723,23 @@
 			return lowered.includes('open.spotify.com') || lowered.startsWith('spotify:');
 		}
 
-		function finishDownload() {
+		function finishDownload(isError = false) {
+			clearPolling();
+			activeJobId = null;
 			isDownloading = false;
-			if (downloadTimeout) {
-				clearTimeout(downloadTimeout);
-				downloadTimeout = null;
-			}
 			fetchButton.disabled = false;
 			if (downloadButton.style.display !== 'none') {
 				downloadButton.disabled = false;
 				downloadButton.textContent = lastPreview && lastPreview.isSpotify ? 'Download Spotify' : 'Download';
 			}
+			pendingFormatLabel = 'Best Quality';
+			if (isError) {
+				return;
+			}
+			if (hideProgressTimer) {
+				clearTimeout(hideProgressTimer);
+			}
+			hideProgressTimer = setTimeout(hideProgressUI, 1600);
 		}
 
 		function recordDownload(formatLabel) {
@@ -667,31 +769,108 @@
 			}
 		});
 
-		downloadForm.addEventListener('submit', () => {
+		downloadForm.addEventListener('submit', handleDownloadSubmit);
+
+		async function handleDownloadSubmit(event) {
+			event.preventDefault();
+			if (isDownloading) {
+				return;
+			}
+			clearPolling();
+			const url = urlInput.value.trim();
+			if (!url) {
+				alert('Please paste a URL first.');
+				return;
+			}
+			if (!lastPreview && !isSpotify(url)) {
+				alert('Fetch video details first using "Fetch Qualities".');
+				return;
+			}
+
 			const selectedOption = formatSelect.options[formatSelect.selectedIndex];
-			const formatLabel = selectedOption ? selectedOption.textContent : 'Best Quality';
-			recordDownload(formatLabel);
+			const formatValue = selectedOption ? selectedOption.value : 'best';
+			pendingFormatLabel = selectedOption ? selectedOption.textContent : 'Best Quality';
+
 			isDownloading = true;
 			fetchButton.disabled = true;
 			if (downloadButton.style.display !== 'none') {
 				downloadButton.disabled = true;
-				downloadButton.textContent = lastPreview && lastPreview.isSpotify ? 'Downloading Spotify…' : 'Downloading…';
+				downloadButton.textContent = lastPreview && lastPreview.isSpotify ? 'Preparing Spotify...' : 'Starting...';
 			}
-			if (downloadTimeout) {
-				clearTimeout(downloadTimeout);
-			}
-			downloadTimeout = setTimeout(() => {
-				if (isDownloading) {
-					finishDownload();
-				}
-			}, 8000);
-		});
 
-		window.addEventListener('focus', () => {
-			if (isDownloading) {
-				finishDownload();
+			showProgressUI(0, 'Preparing download...');
+			try {
+				const response = await fetch('/start_download', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+					body: new URLSearchParams({ url, format: formatValue })
+				});
+				const data = await response.json();
+				if (!response.ok || !data.jobId) {
+					throw new Error(data.error || 'Failed to start download');
+				}
+				activeJobId = data.jobId;
+				await pollStatus();
+			} catch (error) {
+				progressTrack.classList.add('is-error');
+				updateProgressUI(0, `Error: ${error.message || 'Failed to start download'}`);
+				finishDownload(true);
 			}
-		});
+		}
+
+		async function pollStatus() {
+			if (!activeJobId) {
+				return;
+			}
+			statusPoll = null;
+			try {
+				const response = await fetch(`/download_status/${activeJobId}`);
+				const data = await response.json();
+				if (!response.ok) {
+					throw new Error(data.error || 'Download failed');
+				}
+				const progressValue = typeof data.progress === 'number' ? data.progress : null;
+				const message = data.message || (progressValue ? 'Downloading...' : 'Preparing download...');
+				updateProgressUI(progressValue, message);
+
+				if (data.error || data.status === 'error') {
+					progressTrack.classList.add('is-error');
+					finishDownload(true);
+					return;
+				}
+
+				if (data.status === 'completed' && data.downloadUrl) {
+					progressTrack.classList.remove('is-error');
+					updateProgressUI(100, data.message || 'Download ready');
+					triggerDownload(data.downloadUrl);
+					recordDownload(pendingFormatLabel);
+					finishDownload(false);
+					return;
+				}
+
+				clearPolling();
+				statusPoll = setTimeout(pollStatus, 900);
+			} catch (error) {
+				progressTrack.classList.add('is-error');
+				updateProgressUI(0, `Error: ${error.message || 'Download failed'}`);
+				finishDownload(true);
+			}
+		}
+
+		function triggerDownload(url) {
+			if (!url) {
+				return;
+			}
+			const link = document.createElement('a');
+			link.href = url;
+			link.style.display = 'none';
+			link.rel = 'noopener';
+			document.body.appendChild(link);
+			link.click();
+			requestAnimationFrame(() => {
+				document.body.removeChild(link);
+			});
+		}
 
 		function populateFormats(data) {
 			formatSelect.innerHTML = '';
@@ -716,7 +895,9 @@
 
 		function previewVideo() {
 			const url = urlInput.value.trim();
-			if (!url) return;
+			if (!url || isDownloading) return;
+			hideProgressUI();
+			progressTrack.classList.remove('is-error');
 			loader.style.display = 'block';
 			downloadButton.style.display = 'none';
 			downloadButton.disabled = true;
@@ -813,3 +994,5 @@
 	</script>
 </body>
 </html>
+
+  
